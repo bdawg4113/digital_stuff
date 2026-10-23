@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-`include "fifo_top.sv"
+`include "fifo_top.sv"   // resolved via -I ../src
 
 module fifo_tb;
     localparam DEPTH = 16, DATA_WIDTH = 8;
