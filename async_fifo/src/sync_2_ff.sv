@@ -20,7 +20,7 @@ How a 2 FF Sync works:
 /*
     1. Must hold the input for longer than one dest clock period or else the pulse can be missed 
     2. Source signal must come from source domain (to avoid glitches) 
-    3. Only supports single bit CDC
+    3. Can support multi bit async data coming in and multi bit sync data coming out
 */
 
 /*
@@ -30,25 +30,27 @@ How a 2 FF Sync works:
     2. S->F risks seeing the same event multiple times 
     3. F->S risks missing the event entirely
 */ 
-module sync_2ff(
+module sync_2ff #(parameter WIDTH = 3) (
     input logic     clk_dst, 
     input logic     rst_n,      //active low reset 
-    input logic     d_async,    // data is assumed to be async 
-    output logic    q_sync      // data output will be in sync 
+    input logic  [WIDTH:0]   d_async,    // data is assumed to be async 
+    output logic [WIDTH:0]    q_sync      // data output will be in sync 
     ); 
 
-    logic [1:0] sync_ff; 
+    logic [WIDTH:0] q1; 
 
     always_ff @(posedge clk_dst or negedge rst_n) begin 
         if (!rst_n) begin 
-            sync_ff <= 2'b00; 
+            q1 <= 0;
+            q_sync <= 0;
         end 
 
         else begin 
-            sync_ff <= {sync_ff[0], d_async};   // shift one bit forward 
+            q1 <= d_async;
+            q_sync <= q1; 
         end 
 
-        assign q_sync = sync_ff[1]; 
+        
     end
 
 
